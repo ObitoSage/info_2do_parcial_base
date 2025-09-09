@@ -315,6 +315,7 @@ func find_matches():
 							for k in range(match_length):
 								if not all_pieces[i + k][j].matched:  # Don't double-mark
 									all_pieces[i + k][j].matched = true
+									all_pieces[i + k][j].flash_match_effect()  # Flash effect
 									all_pieces[i + k][j].dim()
 							
 							matches_found = true
@@ -332,6 +333,9 @@ func find_matches():
 								print("=== 4-MATCH HORIZONTAL DETECTED ===")
 								print("Will create ROW piece at (", i + 1, ",", j, ") with color: ", current_piece.color)
 								print("Special pieces queue size: ", special_pieces_to_create.size())
+								
+								# Efecto especial para match de 4 (sin delay)
+								create_special_match_effect(i + 1, j, "4_horizontal")
 							elif match_length >= 5:
 								special_pieces_to_create.append({
 									"x": i + 2,  # Place in middle of match
@@ -341,6 +345,7 @@ func find_matches():
 								})
 								current_score += 200
 								print("5+ match horizontal detected - will create rainbow piece")
+								create_special_match_effect(i + 2, j, "5_match")
 							else:
 								current_score += match_length * 10
 				
@@ -360,6 +365,7 @@ func find_matches():
 							for k in range(match_length):
 								if not all_pieces[i][j + k].matched:  # Don't double-mark
 									all_pieces[i][j + k].matched = true
+									all_pieces[i][j + k].flash_match_effect()  # Flash effect
 									all_pieces[i][j + k].dim()
 							
 							matches_found = true
@@ -377,6 +383,9 @@ func find_matches():
 								print("=== 4-MATCH VERTICAL DETECTED ===")
 								print("Will create COLUMN piece at (", i, ",", j + 1, ") with color: ", current_piece.color)
 								print("Special pieces queue size: ", special_pieces_to_create.size())
+								
+								# Efecto especial para match de 4 (sin delay)
+								create_special_match_effect(i, j + 1, "4_vertical")
 							elif match_length >= 5:
 								special_pieces_to_create.append({
 									"x": i,
@@ -386,6 +395,7 @@ func find_matches():
 								})
 								current_score += 200
 								print("5+ match vertical detected - will create rainbow piece")
+								create_special_match_effect(i, j + 2, "5_match")
 							else:
 								current_score += match_length * 10
 	
@@ -427,9 +437,15 @@ func find_matches():
 						})
 						current_score += 200
 						print("T-match detected - will create rainbow piece (Ficha 5)")
+						create_special_match_effect(i, j, "t_match")
 	
 	if matches_found:
 		print("Matches found! Special pieces to create: ", special_pieces_to_create.size())
+		
+		# Efecto de pantalla para matches múltiples
+		if special_pieces_to_create.size() > 0:
+			create_screen_flash_effect()
+		
 		get_parent().get_node("destroy_timer").start()
 	else:
 		swap_back()
@@ -622,6 +638,170 @@ func create_special_pieces_immediately():
 	
 	# Clear the queue
 	special_pieces_to_create.clear()
+
+func create_destruction_particles(x: int, y: int, piece_color: String):
+	# Crear sistema de partículas temporal para destrucción
+	var particles = GPUParticles2D.new()
+	add_child(particles)
+	
+	# Posicionar en la ubicación de la ficha
+	particles.position = grid_to_pixel(x, y)
+	
+	# Configurar material de partículas
+	var material = ParticleProcessMaterial.new()
+	particles.process_material = material
+	
+	# Configuración básica
+	material.direction = Vector3(0, -1, 0)
+	material.initial_velocity_min = 50.0
+	material.initial_velocity_max = 150.0
+	material.angular_velocity_min = -180.0
+	material.angular_velocity_max = 180.0
+	material.gravity = Vector3(0, 98, 0)
+	material.scale_min = 0.3
+	material.scale_max = 0.8
+	
+	# Color según la ficha destruida
+	var particle_color = get_piece_color(piece_color)
+	material.color = particle_color
+	
+	# Configurar emisión
+	particles.amount = 15
+	particles.lifetime = 1.5
+	particles.emitting = true
+	
+	# Auto-destruir después de la animación
+	await get_tree().create_timer(2.0).timeout
+	particles.queue_free()
+
+func create_match_effect(x: int, y: int, match_length: int, direction: String):
+	# Crear efecto visual para matches especiales
+	var effect_particles = GPUParticles2D.new()
+	add_child(effect_particles)
+	effect_particles.position = grid_to_pixel(x, y)
+	
+	var material = ParticleProcessMaterial.new()
+	effect_particles.process_material = material
+	
+	# Configurar según el tipo de match
+	match match_length:
+		4:
+			material.color = Color.GOLD
+			effect_particles.amount = 25
+			material.scale_min = 0.5
+			material.scale_max = 1.2
+		5:
+			material.color = Color.MAGENTA
+			effect_particles.amount = 40
+			material.scale_min = 0.8
+			material.scale_max = 2.0
+		_:
+			material.color = Color.CYAN
+			effect_particles.amount = 30
+	
+	# Dirección de partículas según el match
+	if direction == "horizontal":
+		material.direction = Vector3(-1, 0, 0)
+		material.spread = 30.0
+	else: # vertical
+		material.direction = Vector3(0, -1, 0)
+		material.spread = 30.0
+	
+	material.initial_velocity_min = 100.0
+	material.initial_velocity_max = 200.0
+	material.gravity = Vector3(0, 50, 0)
+	
+	effect_particles.lifetime = 1.0
+	effect_particles.emitting = true
+	
+	# Auto-limpiar
+	await get_tree().create_timer(1.5).timeout
+	effect_particles.queue_free()
+
+func get_piece_color(color_name: String) -> Color:
+	match color_name:
+		"blue": return Color.BLUE
+		"green": return Color.GREEN
+		"light_green": return Color.LIGHT_GREEN
+		"pink": return Color.PINK
+		"yellow": return Color.YELLOW
+		"orange": return Color.ORANGE
+		_: return Color.WHITE
+
+func create_special_match_effect(x: int, y: int, effect_type: String):
+	# Crear efecto visual para matches especiales SIN interferir con el gameplay
+	var effect_node = Node2D.new()
+	add_child(effect_node)
+	effect_node.position = grid_to_pixel(x, y)
+	
+	# Crear sprite para el efecto
+	var effect_sprite = Sprite2D.new()
+	effect_node.add_child(effect_sprite)
+	
+	# Configurar según el tipo de match
+	match effect_type:
+		"4_horizontal":
+			effect_sprite.modulate = Color.GOLD
+			create_line_effect(effect_node, "horizontal")
+		"4_vertical":
+			effect_sprite.modulate = Color.GOLD  
+			create_line_effect(effect_node, "vertical")
+		"5_match":
+			effect_sprite.modulate = Color.MAGENTA
+			create_explosion_effect(effect_node)
+		"t_match":
+			effect_sprite.modulate = Color.CYAN
+			create_cross_effect(effect_node)
+	
+	# Auto-limpiar después de la animación
+	await get_tree().create_timer(1.0).timeout
+	if effect_node and is_instance_valid(effect_node):
+		effect_node.queue_free()
+
+func create_line_effect(effect_node: Node2D, direction: String):
+	var tween = create_tween()
+	tween.set_parallel(true)
+	
+	if direction == "horizontal":
+		tween.tween_property(effect_node, "scale", Vector2(3.0, 0.5), 0.3)
+	else:
+		tween.tween_property(effect_node, "scale", Vector2(0.5, 3.0), 0.3)
+	
+	tween.tween_property(effect_node, "modulate", Color(1, 1, 1, 0), 0.5)
+
+func create_explosion_effect(effect_node: Node2D):
+	var tween = create_tween()
+	tween.set_parallel(true)
+	
+	tween.tween_property(effect_node, "scale", Vector2(4.0, 4.0), 0.4)
+	tween.tween_property(effect_node, "rotation", PI * 2, 0.4)
+	tween.tween_property(effect_node, "modulate", Color(1, 1, 1, 0), 0.6)
+
+func create_cross_effect(effect_node: Node2D):
+	var tween = create_tween()
+	tween.set_parallel(true)
+	
+	tween.tween_property(effect_node, "scale", Vector2(2.5, 2.5), 0.4)
+	tween.tween_property(effect_node, "rotation", PI, 0.4)
+	tween.tween_property(effect_node, "modulate", Color(1, 1, 1, 0), 0.5)
+
+func create_screen_flash_effect():
+	# Crear flash de pantalla para matches especiales
+	var flash_overlay = ColorRect.new()
+	get_tree().current_scene.add_child(flash_overlay)
+	
+	flash_overlay.color = Color(1, 1, 1, 0)
+	flash_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	flash_overlay.z_index = 100
+	
+	var flash_tween = create_tween()
+	flash_tween.tween_property(flash_overlay, "color", Color(1, 1, 1, 0.3), 0.1)
+	flash_tween.tween_property(flash_overlay, "color", Color(1, 1, 1, 0), 0.2)
+	
+	# Auto-limpiar
+	await flash_tween.finished
+	if flash_overlay and is_instance_valid(flash_overlay):
+		flash_overlay.queue_free()
 
 func get_special_piece_scene(piece_type: String, color: String):
 	match piece_type:
