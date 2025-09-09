@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3 uid="uid://rainbow_uid"]
+
+[ext_resource type="PackedScene" uid="uid://dimhfx4c1igfv" path="res://scenes/piece.tscn" id="1_ceuns"]
+[ext_resource type="Texture2D" uid="uid://rainbow_tex" path="res://assets/pieces/Rainbow.png" id="2_y8dwo"]
+
+[node name="RainbowPiece" instance=ExtResource("1_ceuns")]
+color = "rainbow"
+piece_type = "rainbow"
+
+[node name="Sprite2D" parent="." index="0"]
+texture = ExtResource("2_y8dwo")

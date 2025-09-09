@@ -11,9 +11,13 @@ config_version=5
 [application]
 
 config/name="match3"
-run/main_scene="res://scenes/game.tscn"
+run/main_scene="res://scenes/game_mode_menu.tscn"
 config/features=PackedStringArray("4.4", "Forward Plus")
 config/icon="res://icon.svg"
+
+[autoload]
+
+GameManager="*res://scripts/game_manager.gd"
 
 [display]
 

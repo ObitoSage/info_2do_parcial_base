@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3 uid="uid://blue_bomb_uid"]
+
+[ext_resource type="PackedScene" uid="uid://dimhfx4c1igfv" path="res://scenes/piece.tscn" id="1_ceuns"]
+[ext_resource type="Texture2D" uid="uid://blue_adjacent_tex" path="res://assets/pieces/Blue Adjacent.png" id="2_y8dwo"]
+
+[node name="BlueBombPiece" instance=ExtResource("1_ceuns")]
+color = "blue"
+piece_type = "bomb"
+
+[node name="Sprite2D" parent="." index="0"]
+texture = ExtResource("2_y8dwo")
