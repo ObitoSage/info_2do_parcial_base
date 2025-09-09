@@ -1,7 +1,7 @@
-[gd_scene load_steps=3 format=3 uid="uid://pink_bomb_uid"]
+[gd_scene load_steps=3 format=3 uid="uid://duokswy3rbrsc"]
 
 [ext_resource type="PackedScene" uid="uid://dimhfx4c1igfv" path="res://scenes/piece.tscn" id="1_ceuns"]
-[ext_resource type="Texture2D" uid="uid://pink_adjacent_tex" path="res://assets/pieces/Pink Adjacent.png" id="2_y8dwo"]
+[ext_resource type="Texture2D" uid="uid://tqjdkn3v0yiu" path="res://assets/pieces/Pink Adjacent.png" id="2_y8dwo"]
 
 [node name="PinkBombPiece" instance=ExtResource("1_ceuns")]
 color = "pink"

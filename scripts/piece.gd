@@ -46,13 +46,29 @@ func set_flash_progress(value: float):
 		material.set_shader_parameter("flash_progress", value)
 
 func explode_effect():
-	# Simple explosion effect for bomb pieces
+	# Enhanced explosion effect for bomb pieces
 	if piece_type == "bomb":
+		print("Playing bomb explosion effect")
+		
+		# Create explosion visual
 		var tween = create_tween()
 		tween.set_parallel(true)
-		tween.tween_property(self, "scale", Vector2(2.0, 2.0), 0.3)
+		
+		# Scale up quickly then fade out
+		tween.tween_property(self, "scale", Vector2(2.5, 2.5), 0.2)
+		tween.tween_property(self, "modulate", Color(2, 2, 2, 1), 0.1)  # Bright flash
 		tween.tween_property(self, "modulate", Color(1, 1, 1, 0), 0.3)
+		
+		# Optional: Add rotation for more dynamic effect
+		tween.tween_property(self, "rotation", PI, 0.3)
+		
+		# Clean up after effect
 		tween.tween_callback(queue_free).set_delay(0.3)
+	else:
+		# Simple fade for other pieces
+		var tween = create_tween()
+		tween.tween_property(self, "modulate", Color(1, 1, 1, 0), 0.2)
+		tween.tween_callback(queue_free).set_delay(0.2)
 
 func pulse_effect():
 	# Efecto de pulso para feedback

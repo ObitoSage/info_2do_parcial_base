@@ -1,7 +1,7 @@
-[gd_scene load_steps=3 format=3 uid="uid://blue_bomb_uid"]
+[gd_scene load_steps=3 format=3 uid="uid://dph7aq01p8sr8"]
 
 [ext_resource type="PackedScene" uid="uid://dimhfx4c1igfv" path="res://scenes/piece.tscn" id="1_ceuns"]
-[ext_resource type="Texture2D" uid="uid://blue_adjacent_tex" path="res://assets/pieces/Blue Adjacent.png" id="2_y8dwo"]
+[ext_resource type="Texture2D" uid="uid://d1bhv6fqx04ed" path="res://assets/pieces/Blue Adjacent.png" id="2_y8dwo"]
 
 [node name="BlueBombPiece" instance=ExtResource("1_ceuns")]
 color = "blue"
