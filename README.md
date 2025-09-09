@@ -8,7 +8,7 @@ CANDY SMASH es un juego de puzzle match-3 desarrollado en Godot Engine. El juego
 
 El proyecto utiliza una arquitectura modular con separación clara de responsabilidades:
 
-- **Gestión Global**: `GameManager` como singleton autoloaded [2](#0-1) 
+- **Gestión Global**: `GameManager` como singleton autoloaded. 
 - **Escenas Principales**: Menú de selección de modo y escena principal de juego
 - **Sistemas Core**: Grid, Piece, UI y Audio como componentes independientes
 
